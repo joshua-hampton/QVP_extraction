@@ -35,7 +35,7 @@ def add_beam_height(radar):
     if radar.range['data'].ndim == 1:
         test = height_array(radar.range['data'], radar.elevation['data'], radar.altitude['data'])
     else:
-        print 'Warning, radar range has more than one dimension'
+        print('Warning, radar range has more than one dimension')
         test = height_array(radar.range['data'][0], radar.elevation['data'], radar.altitude['data'])
     radar.add_field('scan_altitude', {'data': test, 'units': 'metres'}, replace_existing=True)
 
@@ -49,7 +49,7 @@ def kdp_ukmo(radar,
              SMOOTH_BINS_1=5,
              SMOOTH_BINS_2=3):
 
-    print "In kdp_ukmo"
+    print("In kdp_ukmo")
 
     phidp = copy.deepcopy(radar.fields[phidpfield]['data'])
     rhohv = copy.deepcopy(radar.fields[rhohvfield]['data'])
@@ -96,7 +96,7 @@ def kdp_ukmo(radar,
 
     radar.add_field_like('KDP', 'KDP_UKMO', np.ma.masked_array(data=kdp,
                                                              mask=phidp.mask))
-    print 'KDP_UKMO added to radar object'
+    print('KDP_UKMO added to radar object')
 
 
 # def phidp_ncas(radar, phidpfield='uPhiDP'):
@@ -191,7 +191,7 @@ def preprocssing(radar):
         #print "add_beam_height(radar)"
         add_beam_height(radar)
     except:
-        print 'Beam height failed'
+        print('Beam height failed')
         raise
         
     #print "add_beam_height(radar) is done"

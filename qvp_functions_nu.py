@@ -12,7 +12,7 @@ import copy
 def altitude_parameter_averaging_qvp_original(radar, elevation, field, azimuth_exclude, verbose=False):
     mask_field = field
     expected_ele = elevation
-
+    
     try:
         sweep = np.where(radar.elevation['data'] == expected_ele)[0][0] / (radar.nrays / radar.nsweeps)
 
@@ -45,19 +45,19 @@ def altitude_parameter_averaging_qvp_original(radar, elevation, field, azimuth_e
                 # remove phi_dp wrap-around:
                 #print 'unwrapping phidp ...'
                 if mask_field in ['uPhiDP']:
-					rays = sweep_data.shape[0]
-					bins = sweep_data.shape[1]
+                    rays = sweep_data.shape[0]
+                    bins = sweep_data.shape[1]
 					
 					
 					# METEO_THRESH=0.7 OK for meteo QVP should be lower for Biodar
-					METEO_THRESH=0.7
+                    METEO_THRESH=0.7
 					# flags = np.where(rad2.fields['classification']['data']==1,0,1)
-					flags = np.zeros((rays, bins))
+                    flags = np.zeros((rays, bins))
 					# generate non-meteo mask:
 					#print 'generating non-meteo mask ...'
-					rhohv = radar.fields['RhoHV']['data'][sweep_ind[0]:sweep_ind[1]]
-					(meteoMask) = kdpfun.generate_meteo_mask(rays, bins, flags, rhohv, METEO_THRESH)
-					sweep_data = kdpfun.unwrap_phidp(rays, bins, meteoMask, sweep_data)
+                    rhohv = radar.fields['RhoHV']['data'][sweep_ind[0]:sweep_ind[1]]
+                    (meteoMask) = kdpfun.generate_meteo_mask(rays, bins, flags, rhohv, METEO_THRESH)
+                    sweep_data = kdpfun.unwrap_phidp(rays, bins, meteoMask, sweep_data)
                 summed = np.zeros(sweep_data.shape)
                 counted = np.zeros(sweep_data.shape)
                 mask = np.ma.masked_invalid(sweep_data).mask
@@ -104,7 +104,7 @@ def altitude_parameter_averaging_qvp_original(radar, elevation, field, azimuth_e
 def altitude_parameter_averaging_qvp(radar, elevation, field, azimuth_exclude, verbose=False):
     
     if verbose:
-	    print "in altitude_parameter_averaging_qvp"
+	    print("in altitude_parameter_averaging_qvp")
 		
 	    #print "azimuth_exclude"
 	    #print azimuth_exclude
@@ -126,14 +126,13 @@ def altitude_parameter_averaging_qvp(radar, elevation, field, azimuth_exclude, v
 
         return zero_array, zero_array, zero_array, zero_array, timeofsweep
     else:
-
-        if radar.elevation['data'][radar.sweep_start_ray_index['data'][sweep]] == expected_ele:
+        if radar.elevation['data'][radar.sweep_start_ray_index['data'][int(sweep)]] == expected_ele:
             try:
-				My_pyart_functions.field_fill_to_nan(radar, mask_field)
+                My_pyart_functions.field_fill_to_nan(radar, mask_field)
             except:print('No fill value for:', mask_field)
            
             #try:
-            sweep_ind = (radar.sweep_start_ray_index['data'][sweep], radar.sweep_end_ray_index['data'][sweep])
+            sweep_ind = (radar.sweep_start_ray_index['data'][int(sweep)], radar.sweep_end_ray_index['data'][int(sweep)])
             #print "sweep_ind.shape = {}".format(sweep_ind.shape)
             #print sweep_ind
             azimuth_data = radar.azimuth['data'][sweep_ind[0]:sweep_ind[1]]
@@ -148,21 +147,21 @@ def altitude_parameter_averaging_qvp(radar, elevation, field, azimuth_exclude, v
 								   radar.time['units'],
 								   radar.time['calendar'])
             if mask_field in ['dBuZ', 'dBZ', 'dBuZv', 'dBZv']:
-				sweep_data = np.power(10, sweep_data / 10.0)
+                sweep_data = np.power(10, sweep_data / 10.0)
 			# unfold uPhiDP values
 			# remove phi_dp wrap-around:
 			#print 'unwrapping phidp ...'
             if mask_field in ['uPhiDP']:
-				rays = sweep_data.shape[0]
-				bins = sweep_data.shape[1]
-				METEO_THRESH=0.7
+                rays = sweep_data.shape[0]
+                bins = sweep_data.shape[1]
+                METEO_THRESH=0.7
 				# flags = np.where(rad2.fields['classification']['data']==1,0,1)
-				flags = np.zeros((rays, bins))
+                flags = np.zeros((rays, bins))
 				# generate non-meteo mask:
 				#print 'generating non-meteo mask ...'
-				rhohv = radar.fields['RhoHV']['data'][sweep_ind[0]:sweep_ind[1]]
-				(meteoMask) = kdpfun.generate_meteo_mask(rays, bins, flags, rhohv, METEO_THRESH)
-				sweep_data = kdpfun.unwrap_phidp(rays, bins, meteoMask, sweep_data)
+                rhohv = radar.fields['RhoHV']['data'][sweep_ind[0]:sweep_ind[1]]
+                (meteoMask) = kdpfun.generate_meteo_mask(rays, bins, flags, rhohv, METEO_THRESH)
+                sweep_data = kdpfun.unwrap_phidp(rays, bins, meteoMask, sweep_data)
             summed = np.zeros(sweep_data.shape)
             counted = np.zeros(sweep_data.shape)
             #rays = sweep_data.shape[0]
@@ -285,13 +284,13 @@ def altitude_parameter_averaging_qvp(radar, elevation, field, azimuth_exclude, v
             mean_values = np.nanmean((summed / counted), axis=0)
             std_values = np.nanstd((summed / counted), axis=0)
             if mask_field in ['dBuZ', 'dBZ', 'dBuZv', 'dBZv']:#mask_field == 'dBuZ' or mask_field == 'dBZ':
-				mean_values = 10 * np.log10(mean_values)
-				std_values = 10 * np.log10(std_values)
+                mean_values = 10 * np.log10(mean_values)
+                std_values = 10 * np.log10(std_values)
             observation_count = np.nansum(counted, axis=0)
             if expected_ele == 90.0:
-				altitudes = radar.range['data']
+                altitudes = radar.range['data']
             else:
-				altitudes = radar.fields['scan_altitude']['data'][radar.sweep_start_ray_index['data'][sweep], :]
+                altitudes = radar.fields['scan_altitude']['data'][radar.sweep_start_ray_index['data'][int(sweep)], :]
 		   
 			# clean up the nearest beans influenced by sidelobs
             ranges=radar.range['data']
@@ -308,7 +307,7 @@ def altitude_parameter_averaging_qvp(radar, elevation, field, azimuth_exclude, v
                 # return zero_array, zero_array, zero_array, zero_array, timeofsweep
 
         else:
-            print(radar.elevation['data'][radar.sweep_start_ray_index['data'][sweep]])
+            print(radar.elevation['data'][radar.sweep_start_ray_index['data'][int(sweep)]])
             zero_array = np.zeros((radar.fields[mask_field]['data'].data.shape[1],))
             zero_array[:] = np.nan
             timeofsweep = num2date(radar.time['data'][0],
@@ -368,16 +367,16 @@ def altitude_parameter_meteo_averaging_qvp(radar, elevation, field, azimuth_excl
 				
 				
                 if mask_field in ['dBuZ', 'dBZ', 'dBuZv', 'dBZv']:
-					sweep_data[(sweep_data < -10) | (sweep_data > 60)] = np.nan
-					sweep_data = np.power(10, sweep_data / 10.0)
+                    sweep_data[(sweep_data < -10) | (sweep_data > 60)] = np.nan
+                    sweep_data = np.power(10, sweep_data / 10.0)
                 # unfold uPhiDP values
                 # remove phi_dp wrap-around:
                 #print 'unwrapping phidp ...'
                 elif mask_field in ['uPhiDP']:
-					sweep_data = kdpfun.unwrap_phidp(rays, bins, meteoMask, sweep_data)
+                    sweep_data = kdpfun.unwrap_phidp(rays, bins, meteoMask, sweep_data)
 					
                 elif mask_field in ['ZDR']:
-					sweep_data[(sweep_data < -1.5) | (sweep_data > 5)] = np.nan	
+                    sweep_data[(sweep_data < -1.5) | (sweep_data > 5)] = np.nan	
                 summed = np.zeros(sweep_data.shape)
                 counted = np.zeros(sweep_data.shape)
                 mask = np.ma.masked_invalid(sweep_data).mask
@@ -417,12 +416,13 @@ def altitude_parameter_meteo_averaging_qvp(radar, elevation, field, azimuth_excl
             return zero_array, zero_array, zero_array, zero_array, timeofsweep
 
 
-def time_height_qvp(list_of_files, elevation, field_list, count_threshold=0, azimuth_exclude = [], verbose=verbose):
+def time_height_qvp(list_of_files, elevation, field_list, count_threshold=0, azimuth_exclude = [], verbose=False):
     #verbose = True
     if (verbose):
-		print "in time_height_qvp \n function input is:{} \nwith the number of files {} \n elevation is {} \n field list is {}".format(list_of_files,len(list_of_files),elevation,field_list)
-		print "count_threshold is "
-		print count_threshold
+		#print "in time_height_qvp \n function input is:{} \nwith the number of files {} \n elevation is {} \n field list is {}".format(list_of_files,len(list_of_files),elevation,field_list)
+        print(f"in time_height_qvp \n function input is:{list_of_files} \nwith the number of files {len(list_of_files)} \n elevation is {elevation} \n field list is {field_list}")
+        print("count_threshold is ")
+        print(count_threshold)
        
     result_dict = {}
     stddev_dict = {}
@@ -433,8 +433,8 @@ def time_height_qvp(list_of_files, elevation, field_list, count_threshold=0, azi
 
         radar = pyart.io.read(file_)
         try:
-			if (verbose): print "preprocessing is running"
-			preprocessing_qvp.preprocssing(radar)
+            if (verbose): print(f"{file_}\npreprocessing is running")
+            preprocessing_qvp.preprocssing(radar)
         except:
             print('Preprocessing failed for', file_)
 
@@ -488,6 +488,7 @@ def time_height_qvp(list_of_files, elevation, field_list, count_threshold=0, azi
                     count_dict.update({field: counts_array})
                     sweep_time.append(timeofsweep)
         sweep_times.append(max(sweep_time))
+        del radar
     return result_dict, stddev_dict, count_dict, sweep_times
 
 
@@ -499,7 +500,7 @@ def return_units(filename, fields):
         if field in radar.fields.keys():
             unit_dictionary.update({field:radar.fields[field]['units']})
         else:
-            print field, 'not in original files, need to manually add units'
+            print(field, 'not in original files, need to manually add units')
     return unit_dictionary
 
 
@@ -510,15 +511,15 @@ def return_names(filename, fields):
     short_dictionary = {}
     for field in fields:
         if field in radar.fields.keys():
-            print field
+            print(field)
             long_dictionary.update({field:radar.fields[field]['long_name']})
-            print radar.fields[field]
+            print(radar.fields[field])
 
             try:short_dictionary.update({field: radar.fields[field]['standard_name']})
             except:
-				try:short_dictionary.update({field: radar.fields[field]['proposed_standard_name']})
-				except:short_dictionary.update({field: radar.fields[field]['long_name']})
+                try:short_dictionary.update({field: radar.fields[field]['proposed_standard_name']})
+                except:short_dictionary.update({field: radar.fields[field]['long_name']})
         else:
-            print field, 'not in original files, need to manually add names'
+            print(field, 'not in original files, need to manually add names')
     return long_dictionary, short_dictionary
 
