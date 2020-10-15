@@ -87,10 +87,10 @@ def main():
         print("stop date is")
         print(tstop)
         print("both dates belong to the same day")
-        print(start_datetime - stop_datetime < dt.timedelta(1))
+        print(stop_datetime - start_datetime < dt.timedelta(1))
     
     # Define event date TODO define list of event's dates
-    if(start_datetime - stop_datetime < dt.timedelta(1)):event = start_datetime.strftime('%Y%m%d') 
+    if(stop_datetime - start_datetime < dt.timedelta(1)):event = start_datetime.strftime('%Y%m%d') 
     else: event = start_datetime.strftime('%Y%m%d') 
     
     if(len(zoom_interval)==2):
@@ -108,32 +108,22 @@ def main():
 	
     folder_glob_spec = sys.argv[1]
     if(folder_glob_spec[-1]=="/"):folder_glob_spec = os.path.dirname(folder_glob_spec)
-    #if verbose: print("First argument is %s") %folder_glob_spec
     if verbose: print(f"First argument is {folder_glob_spec}")
     elevation = float(sys.argv[2])
-    #if verbose: print("Second argument is %f") %elevation
     if verbose: print(f"Second argument is {elevation}")
     #'./20170203/ver/*.nc'
-    #if (elevation == 90.0):folder_with_files = '%s/%s/ver/*.nc' %(folder_glob_spec,event)
-    #else:folder_with_files = '%s/%s/*.nc' %(folder_glob_spec,event)
     if (elevation == 90.0):folder_with_files = f'{folder_glob_spec}/{event}/ver/*.nc'
     else:folder_with_files = f'{folder_glob_spec}/{event}/*.nc'
-    #if verbose: print("Input is %s") %folder_with_files
     if verbose: print(f"Input is {folder_with_files}")
     
     
     output_glob_spec = sys.argv[3]
     if(output_glob_spec[-1]=="/"):output_glob_spec = os.path.dirname(output_glob_spec)
-    #output_dir = "%s/%s_QVP" %(output_glob_spec,event)
     output_dir = f"{output_glob_spec}/{event}_QVP"
     if not os.path.exists(output_dir):os.makedirs(output_dir)
     
-    #output_file = '%s/%s_QVP_%ddeg.nc' %(output_dir,event,elevation ) #20170517_QVP_20deg
     output_file = f'{output_dir}/{event}_QVP_{int(elevation)}deg.nc' #20170517_QVP_20deg
     if verbose: 
-        #print("Third argument is %s") %output_glob_spec
-        #print("Output will be placed in %s") %output_file
-        #print"count_threshold is {}".format(count_threshold)
         print(f"Third argument is {output_glob_spec}")
         print(f"Output will be placed in {output_file}")
         print(f"count_threshold is {count_threshold}")
@@ -165,7 +155,6 @@ def main():
     times = qvp_output.createVariable('Time', np.float64,('Time',))
     heights = qvp_output.createVariable('Height', np.float32, ('Height',))
     
-    #time_units = 'seconds since %i-01-01T00:00:00Z' %sweep_times[0].year
     time_units = f'seconds since {sweep_times[0].year}-01-01T00:00:00Z'
     number_times = [date2num(sweeptime,time_units,calendar='gregorian') for sweeptime in sweep_times]
     
@@ -181,18 +170,15 @@ def main():
     
     # Create the field variables
     for field in field_list:
-        group_data_construct_means = '/'+field+'/Means'
-        group_data_construct_deviations = '/' + field + '/StdDevs'
-        group_data_construct_counts = '/' + field + '/Counts'
+        group_data_construct_means = f'/{field}/Means'
+        group_data_construct_deviations = f'/{field}/StdDevs'
+        group_data_construct_counts = f'/{field}/Counts'
         temp_means = qvp_output.createVariable(group_data_construct_means, np.float32, ('Height','Time'))
         temp_stds = qvp_output.createVariable(group_data_construct_deviations, np.float32, ('Height', 'Time'))
         temp_counts = qvp_output.createVariable(group_data_construct_counts, np.float32, ('Height', 'Time'))
         temp_means[:] = result_dict[field]
         temp_stds[:] = stddev_dict[field]
         temp_counts[:] = count_dict[field]
-        #temp_means.long_name = 'Quasi-vertical mean '+field+' at an elevation angle of %.1f degrees' % elevation
-        #stdev_name = 'Quasi-vertical standard deviation of ' + field + ' at an elevation angle of %.1f degrees' % elevation
-        #count_name = 'Quasi-vertical number of observations of ' + field + ' at an elevation angle of %.1f degrees' % elevation
         temp_means.long_name = f'Quasi-vertical mean {field} at an elevation angle of {round(elevation,1)} degrees'
         stdev_name = f'Quasi-vertical standard deviation of {field} at an elevation angle of {round(elevation,1)} degrees'
         count_name = f'Quasi-vertical number of observations of {field} at an elevation angle of {round(elevation,1)} degrees'
@@ -210,7 +196,6 @@ def main():
 	
     qvp_output.close()
     
-    #if verbose:print('New netcdf file created at %s' %output_file)
     if verbose:print(f'New netcdf file created at {output_file}')
 
 	

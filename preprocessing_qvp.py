@@ -25,7 +25,7 @@ def beam_height(r, e, h_):
 
 def height_array(ranges, elevations, h_):
     h_arr = np.zeros((elevations.shape[0], ranges.shape[0]))
-    #print h_arr.shape
+    #print(h_arr.shape)
     for i, elevation in enumerate(elevations):
         h_arr[i] = beam_height(ranges, elevation, h_)
     return h_arr
@@ -56,42 +56,42 @@ def kdp_ukmo(radar,
     rays = copy.deepcopy(radar.nrays)
     bins = copy.deepcopy(radar.ngates)
     binlength = radar.range['data'][1] - radar.range['data'][0]
-    #print 'Beginning KDP estimation'
+    #print('Beginning KDP estimation')
 
     # flags = np.where(rad2.fields['classification']['data']==1,0,1)
     flags = np.zeros((rays, bins))
 
     # generate non-meteo mask:
-    #print 'generating non-meteo mask ...'
+    #print('generating non-meteo mask ...')
     (meteoMask) = kdpfun.generate_meteo_mask(rays, bins, flags, rhohv, METEO_THRESH)
     radar.add_field_like('uPhiDP', 'meteoMask', meteoMask)
 
     # remove phi_dp wrap-around:
-    #print 'unwrapping phidp ...'
+    #print('unwrapping phidp ...')
     (phidp_unwrap) = kdpfun.unwrap_phidp(rays, bins, meteoMask, phidp)
 
     # remove non-meteo data / filter phi_dp:
-    #print 'cleaning / filtering phi_dp ...'
+    #print('cleaning / filtering phi_dp ...')
     (phidp_meteo) = kdpfun.clean_phidp(rays, bins, phidp_unwrap, meteoMask,
                                 FILTER_BINS_1)
 
     # generate non-rain mask:
-    #print 'generating non-rain mask ...'
+    #print('generating non-rain mask ...')
     (rainMask) = kdpfun.generate_rain_mask(rays, bins, rhohv, RAIN_THRESH)
 
     # remove non-rain data / filter phi_dp:
-    #print 'removing non-rain components from phidp ...'
+    #print('removing non-rain components from phidp ...')
     (phidp_rain) = kdpfun.clean_phidp(rays, bins, phidp_meteo, rainMask,
                                FILTER_BINS_2)
 
     # smooth phi_dp (twice):
-    #print 'smoothing phi_dp ...'
+    #print('smoothing phi_dp ...')
     (phidp_smooth) = kdpfun.smooth_data(rays, bins, phidp_rain, SMOOTH_BINS_1)
     (phidp_smooth) = kdpfun.smooth_data(rays, bins, phidp_smooth, SMOOTH_BINS_2)
     radar.add_field_like('uPhiDP', 'sPhiDP', phidp_smooth)
 
     # calculate kdpfun:
-    #print 'calculating kdpfun ...'
+    #print('calculating kdpfun ...')
     (kdp) = kdpfun.calc_kdp_v3(rays, bins, binlength, phidp_smooth, rainMask)
 
     radar.add_field_like('KDP', 'KDP_UKMO', np.ma.masked_array(data=kdp,
@@ -124,9 +124,9 @@ def remove_nearest_bins(radar):
 	#print radar.fields
 	for a_field in radar.fields:
 		if (a_field is not "scan_altitude"):
-			#print a_field
+			#print(a_field)
 			radar.fields[a_field]['data'][:,np.where(ranges<400)[0]] = np.nan
-		#else:print "field is {}".format(a_field)
+		#else:print(f"field is {a_field}")
 		#if (radar.fields[a_field]['data'].ndim > 1): radar.fields[a_field]['data'][:,np.where(ranges<400)[0]] = np.nan
 	#return radar
 
@@ -157,7 +157,7 @@ def attenuation_correction(radar):
                                                                             20, 20, 5, 500,
                                                                             0, 10, 5, 900)
     
-	#print "delta_phi<0 {} , delta_phi >=0 {}".format(len(np.where(delta_phi<0)[0]),len(np.where(delta_phi>=0)[0]))
+	#print("delta_phi<0 {} , delta_phi >=0 {}".format(len(np.where(delta_phi<0)[0]),len(np.where(delta_phi>=0)[0])))
 	
 	#fig, ax_arr = plt.subplots(1, 2, sharey=False,figsize=(20,10))
 	#im = plot_field(qvp_file,'dBZ',Znorm,Zmap,x_lims,-20,40,count_threshold=count_thr,ax=ax_arr[0,0])
@@ -194,7 +194,7 @@ def preprocssing(radar):
         print('Beam height failed')
         raise
         
-    #print "add_beam_height(radar) is done"
+    #print("add_beam_height(radar) is done")
     
     remove_nearest_bins(radar)
     
