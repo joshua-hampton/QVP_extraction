@@ -1,5 +1,3 @@
-#!/usr/bin/env python2.7
-
 ## @file
 #  @brief   kdp_functions.py contains functions required for single scan kdp generation
 #  @program kdp_functions.py contains functions required for single scan kdp generation
@@ -40,20 +38,20 @@ def extract_data(inFile):
     try:
         phidp = pv_in.getData('PHIDP')
     except rn.RadarnetError as detail:
-        print '\n*** INFO: exception occured -', detail
-        print ' - **EXITING**'
+        print('\n*** INFO: exception occured -', detail)
+        print(' - **EXITING**')
         sys.exit(0) # this is not an error condition because we may have singlepol input        
     try:
         rhohv = pv_in.getData('RHOHV')
     except rn.RadarnetError as detail:
-        print '\n*** INFO: exception occured -', detail
-        print ' - **EXITING**'
+        print('\n*** INFO: exception occured -', detail)
+        print(' - **EXITING**')
         sys.exit(0) # this is not an error condition because we may have singlepol input       
     try:    
         zdr = pv_in.getData('ZDR')
     except rn.RadarnetError as detail:
-        print '\n*** INFO: exception occured -', detail
-        print ' - **EXITING**'
+        print('\n*** INFO: exception occured -', detail)
+        print(' - **EXITING**')
         sys.exit(0) # this is not an error condition because we may have singlepol input
                  
     return pv_in, zv, phidp, rhohv, zdr, rays, bins, binLength, flags
@@ -77,7 +75,7 @@ def generate_meteo_mask(rays, bins, flags, rhohv, meteoThresh):
     # if no valid pixels in entire scan, exit:
     validPix = meteoMask[(meteoMask==1)]
     if np.size(validPix) == 0:
-        print '\n*** INFO: No meteo pixels detected - skipping KDP calculation for this scan. ***\n'
+        print('\n*** INFO: No meteo pixels detected - skipping KDP calculation for this scan. ***\n')
         sys.exit(0) # this is not an error condition
         
     return meteoMask
@@ -98,7 +96,7 @@ def generate_rain_mask(rays, bins, rhohv, rainThresh):
     # if no valid pixels in entire scan, exit:
     validPix = rainMask[(rainMask==1)]
     if np.size(validPix) == 0:
-        print '\n*** INFO: No rain pixels detected - skipping KDP calculation for this scan. ***\n'
+        print('\n*** INFO: No rain pixels detected - skipping KDP calculation for this scan. ***\n')
         sys.exit(0) # this is not an error condition
     
     return rainMask
