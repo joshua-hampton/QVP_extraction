@@ -56,6 +56,7 @@ def main():
     parser.add_option("-z", "--zoom time-interval", dest="zoom_interval", default = zoom_interval, help="Time interval to zoom, Formatted as (yyyymmdd'T'HHMMSS,yyyymmdd'T'HHMMSS)")
     parser.add_option("-c", "--count threshold", dest="count_threshold", default = 0, help="Minimal number of points for the mean value calculation at each range")
     parser.add_option("-a", "--azimuth bounds to exclude", dest="azimuth_bounds_to_exclude", default = None, help="Azimuths, that should be excluded in the mean value calculation. Format [star1,end1;start2,end2]")
+    parser.add_option("-n", "--skip-file-interval", dest="file_interval", default=1, help="File interval to skip, i.e. 2 takes every other file, 3 every third")
     	
     #parsing parameters
     (options, files) = parser.parse_args()
@@ -66,7 +67,8 @@ def main():
     field_list = options.field_list
     zoom_interval = options.zoom_interval
     count_threshold = int(options.count_threshold)
-    
+    file_interval = int(options.file_interval)    
+
     if(options.azimuth_bounds_to_exclude != 'None'): 
         azimuth_bounds_to_exclude = options.azimuth_bounds_to_exclude.split(',')
         azimuth_exclude = np.arange(int(azimuth_bounds_to_exclude[0]),int(azimuth_bounds_to_exclude[1]))
@@ -133,6 +135,7 @@ def main():
     
     file_list = glob.glob(folder_with_files)
     file_list.sort()
+    file_list = file_list[::file_interval]
     if verbose:
         print("file_list")
         print(file_list)
